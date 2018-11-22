@@ -1,4 +1,4 @@
-#N canvas 112 166 1011 553 10;
+#N canvas 138 166 1011 553 10;
 #X obj 21 13 cnv 15 250 60 empty empty BassPreampDrive 20 12 0 20 -261234
 -66577 0;
 #X obj 94 234 bpd-eq-basses~;
@@ -53,8 +53,8 @@
 #X obj 390 484 hsl 128 15 0.01 1 1 1 empty empty empty -2 -8 0 10 -260097
 -1 -1 8300 1;
 #X obj 387 504 send bpd-dry;
-#X text 304 431 Son original;
-#X text 316 483 Son traité;
+#X text 314 432 Son traité;
+#X text 302 485 Son original;
 #X connect 1 0 35 1;
 #X connect 3 0 35 1;
 #X connect 4 0 35 1;

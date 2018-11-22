@@ -1,0 +1,7 @@
+#N canvas 543 441 613 458 10;
+#X obj 93 57 inlet~;
+#X obj 91 201 outlet~;
+#X text 222 141 ← filtre passe bande 1 kHz;
+#X obj 135 139 bp~ 1000 6;
+#X connect 0 0 3 0;
+#X connect 3 0 1 0;

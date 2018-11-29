@@ -1,2 +1,1 @@
-tubes = library("tubes.lib");
-process = tubes.T1_12AX7;
+process = library("tubes.lib").T1_12AX7;

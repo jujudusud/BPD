@@ -1,7 +1,7 @@
 #include <m_pd.h>
 #include "lampes/lampes.h"
 
-static t_class *bpd_lampe_tilde_class = NULL;
+static t_class *bpd_lampe_tilde_class = nullptr;
 
 enum e_modele_lampe {
     #define L(x) L_##x,
@@ -20,6 +20,8 @@ struct t_bpd_lampe_tilde {
     #undef L
     t_symbol *x_lampe_syms[NUM_MODELES_LAMPE];
 };
+
+static void bpd_lampe_tilde_model(t_bpd_lampe_tilde *x, t_symbol *s);
 
 static void *bpd_lampe_tilde_new(t_symbol *s, int argc, t_atom argv[])
 {
@@ -40,7 +42,14 @@ static void *bpd_lampe_tilde_new(t_symbol *s, int argc, t_atom argv[])
     switch (argc) {
     default:
         pd_free((t_pd *)x);
-        return NULL;
+        return nullptr;
+    case 1:
+        if (argv[0].a_type != A_SYMBOL) {
+            pd_free((t_pd *)x);
+            return nullptr;
+        }
+        bpd_lampe_tilde_model(x, argv[0].a_w.w_symbol);
+        break;
     case 0:
         break;
     }
@@ -73,7 +82,7 @@ static void bpd_lampe_tilde_dsp(t_bpd_lampe_tilde *x, t_signal **sp)
     dsp_add(&bpd_lampe_tilde_perform, 4, x, sp[0]->s_vec, sp[1]->s_vec, (t_int)sp[0]->s_n);
 }
 
-static void bpd_lampe_model(t_bpd_lampe_tilde *x, t_symbol *s)
+static void bpd_lampe_tilde_model(t_bpd_lampe_tilde *x, t_symbol *s)
 {
     dsp *lampe = nullptr;
 
@@ -109,7 +118,7 @@ EXTERN void setup_bpd0x2dlampe_tilde()
     class_addmethod(
         cls, (t_method)&bpd_lampe_tilde_dsp, gensym("dsp"), A_CANT, A_NULL);
     class_addmethod(
-        cls, (t_method)&bpd_lampe_model, gensym("model"), A_SYMBOL, A_NULL);
+        cls, (t_method)&bpd_lampe_tilde_model, gensym("model"), A_SYMBOL, A_NULL);
 }
 
 }  // extern "C"

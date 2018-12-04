@@ -1,7 +1,10 @@
-#N canvas 543 441 613 458 10;
-#X obj 93 57 inlet~;
+#N canvas 185 139 613 458 10;
+#X obj 86 28 inlet~;
 #X obj 91 201 outlet~;
-#X text 222 141 ← filtre passe bande 100 Hz;
-#X obj 134 139 bp~ 100 3;
-#X connect 0 0 3 0;
-#X connect 3 0 1 0;
+#X obj 134 72 hip~ 40;
+#X text 197 71 ← filtre passe haut 40 Hz;
+#X obj 134 153 bp~ 80 1;
+#X text 195 150 ← filtre passe bande 80 Hz Q = 1;
+#X connect 0 0 2 0;
+#X connect 2 0 4 0;
+#X connect 4 0 1 0;

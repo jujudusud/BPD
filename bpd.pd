@@ -1,12 +1,12 @@
 #N canvas 138 166 1011 553 10;
 #X obj 21 13 cnv 15 250 60 empty empty BassPreampDrive 20 12 0 20 -261234
 -66577 0;
-#X obj 94 234 bpd-eq-basses~;
+#X obj 137 231 bpd-eq-basses~;
 #X text 51 43 Préampli de basse Jujudusud;
-#X obj 186 262 bpd-eq-mediums~;
+#X obj 137 266 bpd-eq-mediums~;
 #X obj 329 240 bpd-eq-hautes~;
 #X obj 129 372 send~ bpd-sortie;
-#X obj 289 138 receive~ bpd-entree;
+#X obj 269 122 receive~ bpd-entree;
 #X obj 565 296 cnv 15 400 200 empty empty Visuel 20 12 0 20 -232576
 -66577 0;
 #X obj 711 350 receive~ bpd-entree;
@@ -28,8 +28,8 @@
 #X text 689 107 le signal rentre ici →;
 #X text 703 254 le signal sort ici →;
 #X obj 838 106 adc~ 1;
-#X obj 838 190 receive~ bpd-sortie;
-#X obj 838 157 send~ bpd-entree;
+#X obj 838 195 receive~ bpd-sortie;
+#X obj 838 176 send~ bpd-entree;
 #X obj 838 253 dac~ 1 2;
 #X msg 883 47 \; pd dsp 1;
 #X text 764 59 METTRE EN MARCHE →;
@@ -43,8 +43,8 @@
 #X text 598 133 volume entrée →;
 #X obj 159 336 *~;
 #X obj 41 299 receive bpd-wet;
-#X obj 309 334 *~;
-#X obj 224 310 receive bpd-dry;
+#X obj 329 338 *~;
+#X obj 236 309 receive bpd-dry;
 #X obj 298 394 cnv 15 240 140 empty empty Mélange 20 12 0 20 -261682
 -66577 0;
 #X obj 390 432 hsl 128 15 0.01 1 1 1 empty empty empty -2 -8 0 10 -260097
@@ -55,11 +55,12 @@
 #X obj 387 504 send bpd-dry;
 #X text 314 432 Son traité;
 #X text 302 485 Son original;
-#X connect 1 0 35 1;
+#X obj 218 199 tgl 15 1 empty empty 30/40Hz 17 7 0 10 -262144 -1 -1
+0 1;
+#X connect 1 0 3 0;
 #X connect 3 0 35 1;
 #X connect 4 0 35 1;
 #X connect 6 0 1 0;
-#X connect 6 0 3 0;
 #X connect 6 0 4 0;
 #X connect 6 0 37 1;
 #X connect 8 0 11 0;
@@ -81,3 +82,4 @@
 #X connect 38 0 37 0;
 #X connect 40 0 41 0;
 #X connect 42 0 43 0;
+#X connect 46 0 1 1;

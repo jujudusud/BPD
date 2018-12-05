@@ -55,7 +55,7 @@
 #X obj 387 504 send bpd-dry;
 #X text 314 432 Son traité;
 #X text 302 485 Son original;
-#X obj 218 199 tgl 15 0 empty empty 30/40Hz 17 7 0 10 -262144 -1 -1
+#X obj 218 199 tgl 15 1 empty empty 30/40Hz 17 7 0 10 -262144 -1 -1
 0 1;
 #X connect 1 0 3 0;
 #X connect 3 0 35 1;

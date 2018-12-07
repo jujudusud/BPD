@@ -1,0 +1,18 @@
+#N canvas 478 262 522 249 10;
+#X obj 7 7 cnv 15 150 30 empty empty vtbdi-mid~ 20 12 0 20 -261682
+-66577 0;
+#X obj 312 77 hsl 128 15 0 1 0 1 empty empty Médiums -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 221 211 dac~ 1 2;
+#X obj 312 189 hsl 128 15 0.01 1 1 1 empty empty Volume -2 -8 0 10
+-262144 -1 -1 0 1;
+#X obj 223 180 *~;
+#X obj 155 99 phasor~ 100;
+#X text 173 12 Filtre combo Bass Driver : moyennes fréquences;
+#X obj 220 141 vtbdi-mid~;
+#X connect 1 0 7 1;
+#X connect 3 0 4 0;
+#X connect 4 0 2 0;
+#X connect 4 0 2 1;
+#X connect 5 0 7 0;
+#X connect 7 0 4 1;

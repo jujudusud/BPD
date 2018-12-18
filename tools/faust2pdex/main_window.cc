@@ -5,6 +5,7 @@
 #include "pddata.h"
 #include <QTextEdit>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QDebug>
 
 struct MainWindow::Impl {
@@ -182,13 +183,37 @@ void MainWindow::on_btn_generate_clicked()
     QVBoxLayout *vl = new QVBoxLayout;
     dlg->setLayout(vl);
 
-    vl->addWidget(new QLabel(P->ui.txt_classname->text() + ".cc"));
+    QHBoxLayout *hl = new QHBoxLayout;
+    vl->addLayout(hl);
+
+    QString sourceFileName = P->ui.txt_classname->text() + ".cc";
+    hl->addWidget(new QLabel(sourceFileName));
+    hl->addStretch();
+    QToolButton *btn_save = new QToolButton;
+    hl->addWidget(btn_save);
+    btn_save->setIcon(QIcon::fromTheme("document-save"));
 
     QTextEdit *txt_code = new QTextEdit;
     vl->addWidget(txt_code);
     txt_code->setReadOnly(false);
     txt_code->setLineWrapMode(QTextEdit::NoWrap);
     txt_code->setText(code);
+
+    connect(
+        btn_save, &QToolButton::clicked, dlg,
+        [this, &sourceFileName, txt_code]() {
+            QString filename = QFileDialog::getSaveFileName(
+                this, tr("Save file"), sourceFileName, tr("C++ sources (*.cc *.cpp *.cxx)"));
+            if (filename.isEmpty())
+                return;
+            QFile file(filename);
+            file.open(QFile::WriteOnly);
+            file.write(txt_code->toPlainText().toUtf8());
+            if (!file.flush()) {
+                file.remove();
+                QMessageBox::warning(this, tr("Error"), tr("Could not write the C++ file."));
+            }
+        });
 
     dlg->exec();
     dlg->deleteLater();

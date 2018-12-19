@@ -33,9 +33,9 @@ QString PdData::generateExternal() const
         "#define DSP_CLASS_NAME " << toCString(classname) << "\n"
         "#define DSP_SETUP " << setupFunctionName() << "\n"
         "#define DSP_MAINSIGNALIN " << (int)mainsignalin << "\n"
-        "enum { dsp_num_controls = " << controls.size() << ","
-        " dsp_num_inputs = " << f.inputs << ","
-        " dsp_num_outputs = " << f.outputs << " };\n";
+        "#define DSP_NUM_CONTROLS " << controls.size() << "\n"
+        "#define DSP_NUM_INPUTS " << f.inputs << "\n"
+        "#define DSP_NUM_OUTPUTS " << f.outputs << "\n";
 
     os << "#define DSP_CONTROLS(F)";
     for (unsigned i = 0, n = controls.size(); i < n; ++i) {
@@ -121,7 +121,7 @@ QString PdData::toIdentifier(const QString &name)
 QString PdData::toCString(const QString &text)
 {
     QString result;
-    result.push_back("u8\"");
+    result.push_back("\"");
 
     for (uint c : text.toUcs4()) {
         switch (c) {
@@ -147,11 +147,19 @@ QString PdData::toCString(const QString &text)
         default:
             if (c < 128)
                 result.push_back(c);
-            else
-                result.append(QString::fromUcs4(&c, 1));
+            else {
+                QByteArray utf8 = QString::fromUcs4(&c, 1).toUtf8();
+                for (unsigned char c : utf8) {
+                    result.append("\\x");
+                    char digit[] = "0123456789abcdef";
+                    result.push_back(digit[(c & 0xf0) >> 4]);
+                    result.push_back(digit[(c & 0x0f)]);
+                }
+            }
         }
     }
 
     result.push_back('"');
+
     return result;
 }

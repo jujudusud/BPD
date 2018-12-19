@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <cassert>
 using std::min;
 using std::max;
 
@@ -25,16 +26,16 @@ public:
     explicit UI(t_dsp_object *x) : x_(x) {}
 
     void declare(float *, const char *, const char *) {}
-    void openFrameBox(const char *label) {}
-    void openTabBox(const char *label) {}
+    void openFrameBox(const char *) {}
+    void openTabBox(const char *) {}
     void openHorizontalBox(const char *) {}
     void openVerticalBox(const char *) {}
     void closeBox() {}
 
-    void addNumDisplay(const char *label, float *zone, int precision) {}
-    void addTextDisplay(const char *label, float *zone, char *names[], float min, float max) {}
-    void addHorizontalBargraph(const char *label, float *zone, float min, float max) {}
-    void addVerticalBargraph(const char *label, float *zone, float min, float max) {}
+    void addNumDisplay(const char *, float *, int) {}
+    void addTextDisplay(const char *, float *, char *[], float, float) {}
+    void addHorizontalBargraph(const char *, float *, float, float) {}
+    void addVerticalBargraph(const char *, float *, float, float) {}
 
     void addButton(const char *label, float *zone)
         { dsp_object_link_control(x_, label, zone); }
@@ -42,11 +43,11 @@ public:
         { dsp_object_link_control(x_, label, zone); }
     void addCheckButton(const char *label, float *zone)
         { dsp_object_link_control(x_, label, zone); }
-    void addVerticalSlider(const char *label, float *zone, float init, float min, float max, float step)
+    void addVerticalSlider(const char *label, float *zone, float, float, float, float)
         { dsp_object_link_control(x_, label, zone); }
-    void addHorizontalSlider(const char *label, float *zone, float init, float min, float max, float step)
+    void addHorizontalSlider(const char *label, float *zone, float, float, float, float)
         { dsp_object_link_control(x_, label, zone); }
-    void addNumEntry(const char* label, float* zone, float init, float min, float max, float step)
+    void addNumEntry(const char* label, float* zone, float, float, float, float)
         { dsp_object_link_control(x_, label, zone); }
 };
 
@@ -54,11 +55,21 @@ class Meta {
 public:
     void declare(const char *, const char *) {}
 };
+
 //------------------------------------------------------------------------------
+#if defined(__GNUC__)
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 #include DSP_CC_FILENAME
 
-static t_class *dsp_object_class = nullptr;
+#if defined(__GNUC__)
+#   pragma GCC diagnostic pop
+#endif
+
+//------------------------------------------------------------------------------
+static t_class *dsp_object_class = 0;
 
 struct t_dsp_object {
     t_object x_obj;
@@ -67,7 +78,7 @@ struct t_dsp_object {
     float x_signalin;
 #endif
 #define DSP_IMPL_CONTROL_MEMBER(symbol, ident, label, hasinlet, haslimit, min, max) \
-    float *x_##ident;
+    float *x_ctl_##ident;
     DSP_CONTROLS(DSP_IMPL_CONTROL_MEMBER);
 #undef DSP_IMPL_CONTROL_MEMBER
 };
@@ -76,14 +87,14 @@ static void dsp_object_link_control(t_dsp_object *x, const char *name, float *zo
 {
 #define DSP_IMPL_LINK_CONTROL(symbol, ident, label, hasinlet, haslimit, min, max) \
     if (!std::strcmp(name, label)) {                                    \
-        x->x_##ident = zone;                                            \
+        x->x_ctl_##ident = zone;                                        \
         return;                                                         \
     }
     DSP_CONTROLS(DSP_IMPL_LINK_CONTROL);
 #undef DSP_IMPL_LINK_CONTROL
 }
 
-static void *dsp_object_new(t_symbol *s, int argc, t_atom argv[])
+static void *dsp_object_new(t_symbol *, int argc, t_atom argv[])
 {
     t_dsp_object *x = (t_dsp_object *)pd_new(dsp_object_class);
     t_float sr = sys_getsr();
@@ -96,16 +107,20 @@ static void *dsp_object_new(t_symbol *s, int argc, t_atom argv[])
 
 #if DSP_MAINSIGNALIN
     x->x_signalin = 0;
-    for (unsigned i = 1; i < dsp_num_inputs; ++i)
-        inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
-#else
-    for (unsigned i = 0; i < dsp_num_inputs; ++i)
+#endif
+
+#if DSP_NUM_INPUTS > 0
+    for (unsigned i = DSP_MAINSIGNALIN ? 1 : 0; i < DSP_NUM_INPUTS; ++i)
         inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
 #endif
-    for (unsigned i = 0; i < dsp_num_outputs; ++i)
+
+#if DSP_NUM_OUTPUTS > 0
+    for (unsigned i = 0; i < DSP_NUM_OUTPUTS; ++i)
         outlet_new(&x->x_obj, &s_signal);
+#endif
 
 #define DSP_IMPL_CONTROL_INLET(symbol, ident, label, hasinlet, haslimit, min, max) \
+    assert(x->x_ctl_##ident);                                           \
     if (hasinlet)                                                       \
         inlet_new(&x->x_obj, &x->x_obj.ob_pd, gensym("float"), gensym(symbol));
     DSP_CONTROLS(DSP_IMPL_CONTROL_INLET)
@@ -114,8 +129,9 @@ static void *dsp_object_new(t_symbol *s, int argc, t_atom argv[])
     switch (argc) {
     default:
         pd_free((t_pd *)x);
-        return nullptr;
+        return 0;
     case 0:
+        (void)argv;
         break;
     }
 
@@ -132,13 +148,18 @@ static t_int *dsp_object_perform(t_int *w)
     t_dsp_object *x = (t_dsp_object *)*++w;
     unsigned n = (t_int)*++w;
 
-    t_sample *in[dsp_num_inputs];
-    for (unsigned i = 0; i < dsp_num_inputs; ++i)
-        in[i] = (t_sample *)*++w;
+    t_sample *in[DSP_NUM_INPUTS];
+    t_sample *out[DSP_NUM_OUTPUTS];
 
-    t_sample *out[dsp_num_outputs];
-    for (unsigned i = 0; i < dsp_num_outputs; ++i)
+#if DSP_NUM_INPUTS > 0
+    for (unsigned i = 0; i < DSP_NUM_INPUTS; ++i)
+        in[i] = (t_sample *)*++w;
+#endif
+
+#if DSP_NUM_OUTPUTS > 0
+    for (unsigned i = 0; i < DSP_NUM_OUTPUTS; ++i)
         out[i] = (t_sample *)*++w;
+#endif
 
     FAUSTCLASS *dsp = x->x_dsp;
     dsp->compute(n, in, out);
@@ -148,27 +169,29 @@ static t_int *dsp_object_perform(t_int *w)
 
 static void dsp_object_dsp(t_dsp_object *x, t_signal **sp)
 {
-    enum { n = 2 + dsp_num_inputs + dsp_num_outputs };
+    enum { n = 2 + DSP_NUM_INPUTS + DSP_NUM_OUTPUTS };
     t_int vec[n];
 
     unsigned vi = 0;
     vec[vi++] = (t_int)x;
     vec[vi++] = (t_int)sp[0]->s_n;
 
-    for (unsigned i = 0; i < dsp_num_inputs + dsp_num_outputs; ++i)
+#if DSP_NUM_INPUTS > 0 || DSP_NUM_OUTPUTS > 0
+    for (unsigned i = 0; i < DSP_NUM_INPUTS + DSP_NUM_OUTPUTS; ++i)
         vec[vi++] = (t_int)sp[i]->s_vec;
+#endif
 
     dsp_addv(&dsp_object_perform, n, vec);
 }
 
 #define DSP_IMPL_CONTROL_METHOD(symbol, ident, label, hasinlet, haslimit, min, max) \
-    static void dsp_object_##ident(t_dsp_object *x, t_floatarg f)       \
+    static void dsp_object_ctl_##ident(t_dsp_object *x, t_floatarg f)   \
     {                                                                   \
         if (haslimit) {                                                 \
             f = (f < min) ? min : f;                                    \
             f = (f > max) ? max : f;                                    \
         }                                                               \
-        *x->x_##ident = f;                                              \
+        *x->x_ctl_##ident = f;                                          \
     }
 DSP_CONTROLS(DSP_IMPL_CONTROL_METHOD)
 #undef DSP_IMPL_CONTROL_METHOD
@@ -184,7 +207,7 @@ void DSP_SETUP()
 {
     t_class *cls = dsp_object_class = class_new(
         gensym(DSP_CLASS_NAME),
-        (t_newmethod)&dsp_object_new,
+        (t_newmethod)(void(*)())&dsp_object_new,
         (t_method)&dsp_object_free,
         sizeof(t_dsp_object),
 #if DSP_MAINSIGNALIN
@@ -201,7 +224,7 @@ void DSP_SETUP()
         cls, (t_method)&dsp_object_dsp, gensym("dsp"), A_CANT, A_NULL);
 
 #define DSP_IMPL_ADD_METHOD(symbol, ident, label, hasinlet, haslimit, min, max) \
-    class_addmethod(dsp_object_class, (t_method)dsp_object_##ident, gensym(symbol), A_FLOAT, 0);
+    class_addmethod(dsp_object_class, (t_method)dsp_object_ctl_##ident, gensym(symbol), A_FLOAT, 0);
     DSP_CONTROLS(DSP_IMPL_ADD_METHOD);
 #undef DSP_IMPL_ADD_METHOD
 }

@@ -6,11 +6,16 @@
 #include <QTextEdit>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTimer>
 #include <QDebug>
 
 struct MainWindow::Impl {
     Ui::MainWindow ui;
     FaustData faustdata;
+    QTimer *timer = nullptr;
+    PdData getPdData() const;
+    void requestObjectDisplayUpdate();
+    void updateObjectDisplay();
 };
 
 MainWindow::MainWindow(QWidget *parent)
@@ -18,11 +23,25 @@ MainWindow::MainWindow(QWidget *parent)
 {
     P->ui.setupUi(this);
 
+    P->ui.splitter->setStretchFactor(0, 2);
+
     for (QTableWidget *tw :
              {P->ui.tw_ctlin, P->ui.tw_sigin, P->ui.tw_sigout}) {
         tw->setSelectionMode(QTableWidget::SingleSelection);
         tw->setSelectionBehavior(QTableWidget::SelectRows);
     }
+
+    connect(
+        P->ui.tw_ctlin, &QTableWidget::itemChanged,
+        this, [this]() { P->requestObjectDisplayUpdate(); });
+
+    QTimer *timer = P->timer = new QTimer(this);
+    timer->setSingleShot(true);
+    connect(
+        timer, &QTimer::timeout,
+        this, [this]() { P->updateObjectDisplay(); });
+
+    P->requestObjectDisplayUpdate();
 }
 
 MainWindow::~MainWindow()
@@ -113,6 +132,8 @@ void MainWindow::loadFaustData(const FaustData &f)
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         tw_sigout->setItem(i, 0, item);
     }
+
+    P->requestObjectDisplayUpdate();
 }
 
 void MainWindow::on_btn_loadFaustFile_clicked()
@@ -127,53 +148,7 @@ void MainWindow::on_btn_loadFaustFile_clicked()
 
 void MainWindow::on_btn_generate_clicked()
 {
-    PdData p;
-    p.classname = P->ui.txt_classname->text();
-    p.faustdata = &P->faustdata;
-    p.mainsignalin = P->ui.chk_mainSignalIn->isChecked();
-
-    QTableWidget *tw_ctlin = P->ui.tw_ctlin;
-    for (unsigned i = 0, n = tw_ctlin->rowCount(); i < n; ++i) {
-        QTableWidgetItem *item0 = tw_ctlin->item(i, 0);
-        if (item0->checkState() != Qt::Checked)
-            continue;
-        PdData::Control ctl;
-        ctl.symbol = tw_ctlin->item(i, 1)->text();
-        ctl.hasinlet = tw_ctlin->item(i, 2)->checkState() == Qt::Checked;
-
-        QTableWidgetItem *item3 = tw_ctlin->item(i, 3);
-        ctl.haslimit = item3->checkState() == Qt::Checked;
-
-        QString label = item0->text();
-        for (unsigned i = 0, n = p.faustdata->controls.size(); i < n; ++i) {
-            if (p.faustdata->controls[i].label == label) {
-                ctl.faustindex = i;
-                break;
-            }
-        }
-
-        p.controls.push_back(ctl);
-    }
-
-    QTableWidget *tw_sigin = P->ui.tw_sigin;
-    for (unsigned i = 0, n = tw_sigin->rowCount(); i < n; ++i) {
-        QTableWidgetItem *item = tw_sigin->item(i, 0);
-        // if (item->checkState() != Qt::Checked)
-        //     continue;
-        PdData::Input sig;
-        sig.faustindex = item->data(Qt::UserRole).toInt();
-        p.inputs.push_back(sig);
-    }
-
-    QTableWidget *tw_sigout = P->ui.tw_sigout;
-    for (unsigned i = 0, n = tw_sigout->rowCount(); i < n; ++i) {
-        QTableWidgetItem *item = tw_sigout->item(i, 0);
-        // if (item->checkState() != Qt::Checked)
-        //     continue;
-        PdData::Output sig;
-        sig.faustindex = item->data(Qt::UserRole).toInt();
-        p.outputs.push_back(sig);
-    }
+    const PdData p = P->getPdData();
 
     QString code = p.generateExternal();
 
@@ -237,6 +212,8 @@ void MainWindow::on_btn_ctlMoveUp_clicked()
         tw->setItem(newRow, i, new QTableWidgetItem(*tw->item(row, i)));
     tw->selectRow(newRow);
     tw->removeRow(row);
+
+    P->requestObjectDisplayUpdate();
 }
 
 void MainWindow::on_btn_ctlMoveDown_clicked()
@@ -257,4 +234,75 @@ void MainWindow::on_btn_ctlMoveDown_clicked()
         tw->setItem(newRow, i, new QTableWidgetItem(*tw->item(row, i)));
     tw->selectRow(newRow);
     tw->removeRow(row);
+
+    P->requestObjectDisplayUpdate();
+}
+
+void MainWindow::on_txt_classname_textChanged(const QString &)
+{
+    P->requestObjectDisplayUpdate();
+}
+
+PdData MainWindow::Impl::getPdData() const
+{
+    PdData p;
+    p.classname = ui.txt_classname->text();
+    p.faustdata = &faustdata;
+    p.mainsignalin = ui.chk_mainSignalIn->isChecked();
+
+    QTableWidget *tw_ctlin = ui.tw_ctlin;
+    for (unsigned i = 0, n = tw_ctlin->rowCount(); i < n; ++i) {
+        QTableWidgetItem *item0 = tw_ctlin->item(i, 0);
+        if (item0->checkState() != Qt::Checked)
+            continue;
+        PdData::Control ctl;
+        ctl.symbol = tw_ctlin->item(i, 1)->text();
+        ctl.hasinlet = tw_ctlin->item(i, 2)->checkState() == Qt::Checked;
+
+        QTableWidgetItem *item3 = tw_ctlin->item(i, 3);
+        ctl.haslimit = item3->checkState() == Qt::Checked;
+
+        QString label = item0->text();
+        for (unsigned i = 0, n = p.faustdata->controls.size(); i < n; ++i) {
+            if (p.faustdata->controls[i].label == label) {
+                ctl.faustindex = i;
+                break;
+            }
+        }
+
+        p.controls.push_back(ctl);
+    }
+
+    QTableWidget *tw_sigin = ui.tw_sigin;
+    for (unsigned i = 0, n = tw_sigin->rowCount(); i < n; ++i) {
+        QTableWidgetItem *item = tw_sigin->item(i, 0);
+        // if (item->checkState() != Qt::Checked)
+        //     continue;
+        PdData::Input sig;
+        sig.faustindex = item->data(Qt::UserRole).toInt();
+        p.inputs.push_back(sig);
+    }
+
+    QTableWidget *tw_sigout = ui.tw_sigout;
+    for (unsigned i = 0, n = tw_sigout->rowCount(); i < n; ++i) {
+        QTableWidgetItem *item = tw_sigout->item(i, 0);
+        // if (item->checkState() != Qt::Checked)
+        //     continue;
+        PdData::Output sig;
+        sig.faustindex = item->data(Qt::UserRole).toInt();
+        p.outputs.push_back(sig);
+    }
+
+    return p;
+}
+
+void MainWindow::Impl::requestObjectDisplayUpdate()
+{
+    QTimer *timer = this->timer;
+    timer->start(0);
+}
+
+void MainWindow::Impl::updateObjectDisplay()
+{
+    ui.graphicsView->displayPdData(getPdData());
 }

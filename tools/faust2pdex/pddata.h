@@ -5,7 +5,7 @@ struct FaustData;
 
 struct PdData {
     QString classname;
-    FaustData *faustdata;
+    const FaustData *faustdata = nullptr;
     bool mainsignalin = false;
 
     struct Control {

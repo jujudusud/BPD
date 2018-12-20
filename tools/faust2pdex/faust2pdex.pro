@@ -1,6 +1,6 @@
 QT = widgets
-SOURCES = faust2pdex.cc faustdata.cc pddata.cc main_window.cc
-HEADERS = faust2pdex.h faustdata.h pddata.h main_window.h
+SOURCES = faust2pdex.cc faustdata.cc pddata.cc main_window.cc pd_object_view.cc
+HEADERS = faust2pdex.h faustdata.h pddata.h main_window.h pd_object_view.h
 FORMS = main_window.ui
 RESOURCES = resources.qrc
 

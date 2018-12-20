@@ -35,6 +35,7 @@ void Application::loadFaustFile(const QString &filename)
     file.open(QIODevice::ReadOnly);
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
     file.close();
+    file.remove();
 
     if (doc.isNull()) {
         QMessageBox::warning(nullptr, tr("Error"), "Could not read JSON data.");

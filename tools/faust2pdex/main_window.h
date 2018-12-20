@@ -17,6 +17,7 @@ protected slots:
     void on_btn_generate_clicked();
     void on_btn_ctlMoveUp_clicked();
     void on_btn_ctlMoveDown_clicked();
+    void on_txt_classname_textChanged(const QString &);
 
 private:
     struct Impl;

@@ -87,6 +87,8 @@ QString PdData::setupFunctionName() const
     if (tilde)
         class8.resize(class8.size() - 1);
 
+    bool hex = false;
+
     for (unsigned char c : class8) {
         if (isIdentifierChar(c))
             result.push_back(c);
@@ -95,12 +97,16 @@ QString PdData::setupFunctionName() const
             char digit[] = "0123456789abcdef";
             result.push_back(digit[(c & 0xf0) >> 4]);
             result.push_back(digit[(c & 0x0f)]);
+            hex = true;
         }
     }
 
     if (tilde)
         result.append("_tilde");
-    result.append("_setup");
+    if (hex)
+        result.prepend("setup_");
+    else
+        result.append("_setup");
 
     return result;
 }

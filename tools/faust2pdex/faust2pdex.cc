@@ -9,8 +9,11 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 #include <QProcess>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QStandardPaths>
+#include <QDebug>
 
 struct Application::Impl {
     MainWindow *win_;
@@ -30,24 +33,38 @@ Application::~Application()
 
 void Application::loadFaustFile(const QString &filename)
 {
-    int exitcode = QProcess::execute("faust", {"-json", filename});
-    if (exitcode != 0) {
-        QMessageBox::warning(nullptr, tr("Error"), "Could not load Faust file.");
+    QFileInfo fileinfo(filename);
+
+    QDir tempDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
+        "/" + theApp->applicationName() + "/" + QString::number(theApp->applicationPid()));
+    tempDir.mkpath(".");
+
+    QString dspfile = tempDir.filePath(fileinfo.fileName());
+    if (!QFile(filename).copy(dspfile)) {
+        QMessageBox::warning(nullptr, tr("Error"), "Could not write temporary file.");
+        tempDir.removeRecursively();
         return;
     }
 
-    QFile file(filename + ".json");
-    file.open(QIODevice::ReadOnly);
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    file.close();
-    file.remove();
+    int exitcode = QProcess::execute("faust", {"-json", "-I", fileinfo.dir().path(), dspfile});
+    if (exitcode != 0) {
+        QMessageBox::warning(nullptr, tr("Error"), "Could not load Faust file.");
+        tempDir.removeRecursively();
+        return;
+    }
+
+    QFile jsonfile(dspfile + ".json");
+    jsonfile.open(QIODevice::ReadOnly);
+    QJsonDocument doc = QJsonDocument::fromJson(jsonfile.readAll());
+    jsonfile.close();
+    tempDir.removeRecursively();
 
     if (doc.isNull()) {
         QMessageBox::warning(nullptr, tr("Error"), "Could not read JSON data.");
         return;
     }
 
-    QString filebase = QFileInfo(filename).baseName();
+    QString filebase = fileinfo.baseName();
     FaustData data = FaustData::loadJson(filebase, doc);
     P->win_->loadFaustData(data);
 }

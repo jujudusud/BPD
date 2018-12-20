@@ -222,7 +222,7 @@ void DSP_SETUP()
 {
     t_class *cls = dsp_object_class = class_new(
         gensym(DSP_CLASS_NAME),
-        (t_newmethod)(void(*)())&dsp_object_new,
+        (t_newmethod)(void (*)())&dsp_object_new,
         (t_method)&dsp_object_free,
         sizeof(t_dsp_object),
 #if DSP_MAINSIGNALIN

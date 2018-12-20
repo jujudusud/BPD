@@ -63,12 +63,32 @@ void PdObjectView::displayPdData(const PdData &p)
 
     unsigned ports = std::max(inlets + controls, outlets);
 
+    unsigned initargs = 0;
+    for (const PdData::Control &c : p.controls)
+        initargs = std::max((unsigned)c.initarg + 1, initargs);
+
+    QVector<unsigned> initarg(initargs);
+    for (const PdData::Control &c : p.controls) {
+        if (c.initarg >= 0)
+            ++initarg[(unsigned)c.initarg];
+    }
+
     if (ports > 0) {
         qreal minw = (int)ports * (Impl::port_width + Impl::port_spacing) - Impl::port_spacing;
         objw = std::max(objw, minw);
     }
 
-    QGraphicsTextItem *label = new QGraphicsTextItem(p.classname);
+    QString labeltext = p.classname.toHtmlEscaped();
+    for (unsigned i = 0; i < initargs; ++i) {
+        labeltext.push_back(' ');
+        labeltext.push_back((initarg[i] == 1) ? "<span>" : "<span style='color: red;'>");
+        labeltext.push_back('a');
+        labeltext.push_back(QString::number(i + 1));
+        labeltext.push_back("</span>");
+    }
+
+    QGraphicsTextItem *label = new QGraphicsTextItem;
+    label->setHtml(labeltext);
     label->setFont(P->font_);
     scene->addItem(label);
     QRectF labelrect = label->boundingRect();

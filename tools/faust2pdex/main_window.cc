@@ -123,6 +123,11 @@ void MainWindow::loadFaustData(const FaustData &f)
 
             item->setData(Qt::UserRole, (qulonglong)(uintptr_t)chk);
             item->setData(Qt::UserRole + 1, (qulonglong)(uintptr_t)val);
+
+            connect(
+                chk, &QCheckBox::toggled, this, [this]() { P->requestObjectDisplayUpdate(); });
+            connect(
+                val, qOverload<int>(&QSpinBox::valueChanged), this, [this](int) { P->requestObjectDisplayUpdate(); });
         }
 
         ++row;

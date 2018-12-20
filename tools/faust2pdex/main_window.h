@@ -1,3 +1,8 @@
+//          Copyright Jean Pierre Cimalando 2018.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
 #pragma once
 #include <QMainWindow>
 #include <memory>
@@ -17,6 +22,7 @@ protected slots:
     void on_btn_generate_clicked();
     void on_btn_ctlMoveUp_clicked();
     void on_btn_ctlMoveDown_clicked();
+    void on_txt_classname_textChanged(const QString &);
 
 private:
     struct Impl;

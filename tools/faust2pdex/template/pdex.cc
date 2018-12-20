@@ -1,5 +1,4 @@
 #include <m_pd.h>
-#include <vector>
 #include <algorithm>
 #include <cstring>
 #include <cassert>
@@ -77,7 +76,7 @@ struct t_dsp_object {
 #if DSP_MAINSIGNALIN
     float x_signalin;
 #endif
-#define DSP_IMPL_CONTROL_MEMBER(symbol, ident, label, hasinlet, haslimit, min, max) \
+#define DSP_IMPL_CONTROL_MEMBER(symbol, ident, label, hasinlet, haslimit, initarg, min, max) \
     float *x_ctl_##ident;
     DSP_CONTROLS(DSP_IMPL_CONTROL_MEMBER);
 #undef DSP_IMPL_CONTROL_MEMBER
@@ -85,7 +84,7 @@ struct t_dsp_object {
 
 static void dsp_object_link_control(t_dsp_object *x, const char *name, float *zone)
 {
-#define DSP_IMPL_LINK_CONTROL(symbol, ident, label, hasinlet, haslimit, min, max) \
+#define DSP_IMPL_LINK_CONTROL(symbol, ident, label, hasinlet, haslimit, initarg, min, max) \
     if (!std::strcmp(name, label)) {                                    \
         x->x_ctl_##ident = zone;                                        \
         return;                                                         \
@@ -109,8 +108,8 @@ static void *dsp_object_new(t_symbol *, int argc, t_atom argv[])
     x->x_signalin = 0;
 #endif
 
-#if DSP_NUM_INPUTS > 0
-    for (unsigned i = DSP_MAINSIGNALIN ? 1 : 0; i < DSP_NUM_INPUTS; ++i)
+#if DSP_NUM_INPUTS > 1
+    for (unsigned i = 1; i < DSP_NUM_INPUTS; ++i)
         inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
 #endif
 
@@ -119,20 +118,35 @@ static void *dsp_object_new(t_symbol *, int argc, t_atom argv[])
         outlet_new(&x->x_obj, &s_signal);
 #endif
 
-#define DSP_IMPL_CONTROL_INLET(symbol, ident, label, hasinlet, haslimit, min, max) \
+#define DSP_IMPL_CONTROL_INLET(symbol, ident, label, hasinlet, haslimit, initarg, min, max) \
     assert(x->x_ctl_##ident);                                           \
     if (hasinlet)                                                       \
         inlet_new(&x->x_obj, &x->x_obj.ob_pd, gensym("float"), gensym(symbol));
     DSP_CONTROLS(DSP_IMPL_CONTROL_INLET)
 #undef DSP_IMPL_CONTROL_INLET
 
-    switch (argc) {
-    default:
+    bool args_ok = true;
+    (void)argv;
+
+#define DSP_IMPL_CONTROL_ARG(symbol, ident, label, hasinlet, haslimit, initarg, min, max) \
+    if (initarg != -1 && args_ok && initarg < argc) {                   \
+        t_atom *arg = &argv[initarg];                                   \
+        args_ok = arg->a_type == A_FLOAT;                               \
+        if (args_ok) {                                                  \
+            t_float f = arg->a_w.w_float;                               \
+            if (haslimit) {                                             \
+                f = (f < min) ? min : f;                                \
+                f = (f > max) ? max : f;                                \
+            }                                                           \
+            *x->x_ctl_##ident = f;                                      \
+        }                                                               \
+    }
+    DSP_CONTROLS(DSP_IMPL_CONTROL_ARG)
+#undef DSP_IMPL_CONTROL_ARG
+
+    if (!args_ok) {
         pd_free((t_pd *)x);
         return 0;
-    case 0:
-        (void)argv;
-        break;
     }
 
     return x;
@@ -184,7 +198,7 @@ static void dsp_object_dsp(t_dsp_object *x, t_signal **sp)
     dsp_addv(&dsp_object_perform, n, vec);
 }
 
-#define DSP_IMPL_CONTROL_METHOD(symbol, ident, label, hasinlet, haslimit, min, max) \
+#define DSP_IMPL_CONTROL_METHOD(symbol, ident, label, hasinlet, haslimit, initarg, min, max) \
     static void dsp_object_ctl_##ident(t_dsp_object *x, t_floatarg f)   \
     {                                                                   \
         if (haslimit) {                                                 \
@@ -207,10 +221,10 @@ void DSP_SETUP()
 {
     t_class *cls = dsp_object_class = class_new(
         gensym(DSP_CLASS_NAME),
-        (t_newmethod)(void(*)())&dsp_object_new,
+        (t_newmethod)(void (*)())&dsp_object_new,
         (t_method)&dsp_object_free,
         sizeof(t_dsp_object),
-#if DSP_MAINSIGNALIN
+#if DSP_NUM_INPUTS > 0
         CLASS_DEFAULT,
 #else
         CLASS_NOINLET,
@@ -223,8 +237,9 @@ void DSP_SETUP()
     class_addmethod(
         cls, (t_method)&dsp_object_dsp, gensym("dsp"), A_CANT, A_NULL);
 
-#define DSP_IMPL_ADD_METHOD(symbol, ident, label, hasinlet, haslimit, min, max) \
-    class_addmethod(dsp_object_class, (t_method)dsp_object_ctl_##ident, gensym(symbol), A_FLOAT, 0);
+#define DSP_IMPL_ADD_METHOD(symbol, ident, label, hasinlet, haslimit, initarg, min, max) \
+    class_addmethod(                                                    \
+        dsp_object_class, (t_method)dsp_object_ctl_##ident, gensym(symbol), A_FLOAT, 0);
     DSP_CONTROLS(DSP_IMPL_ADD_METHOD);
 #undef DSP_IMPL_ADD_METHOD
 }

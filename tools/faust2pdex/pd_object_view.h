@@ -3,20 +3,18 @@
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#pragma once
-#include <QApplication>
+#include <QGraphicsView>
 #include <memory>
+struct PdData;
 
-class Application : public QApplication {
+class PdObjectView : public QGraphicsView {
 public:
-    Application(int &argc, char *argv[]);
-    ~Application();
+    explicit PdObjectView(QWidget *parent = nullptr);
+    ~PdObjectView();
 
-    void loadFaustFile(const QString &filename);
+    void displayPdData(const PdData &p);
 
 private:
     struct Impl;
     std::unique_ptr<Impl> P;
 };
-
-#define theApp static_cast<Application *>(qApp)

@@ -1,3 +1,8 @@
+//          Copyright Jean Pierre Cimalando 2018.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
 #include "pddata.h"
 #include "faustdata.h"
 #include "faust2pdex.h"
@@ -46,6 +51,7 @@ QString PdData::generateExternal() const
            << ", " << toCString(fctl.label)
            << ", " << (ctl.hasinlet ? "true" : "false")
            << ", " << (ctl.haslimit ? "true" : "false")
+           << ", " << ctl.initarg
            << ", " << fctl.min << ", " << fctl.max
            << ")";
     }

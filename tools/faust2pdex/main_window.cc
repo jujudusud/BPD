@@ -6,6 +6,8 @@
 #include <QTextEdit>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QCheckBox>
+#include <QSpinBox>
 #include <QTimer>
 #include <QDebug>
 
@@ -62,13 +64,14 @@ void MainWindow::loadFaustData(const FaustData &f)
     QTableWidget *tw_ctlin = P->ui.tw_ctlin;
     tw_ctlin->clear();
 
-    tw_ctlin->setColumnCount(4);
+    tw_ctlin->setColumnCount(5);
     tw_ctlin->setRowCount(f.controls.size());
     tw_ctlin->setHorizontalHeaderLabels({
             tr("Control"),
             tr("Pd symbol"),
             tr("Inlet?"),
             tr("Limit?"),
+            tr("Init arg?"),
         });
 
     unsigned row = 0;
@@ -93,6 +96,29 @@ void MainWindow::loadFaustData(const FaustData &f)
         item->setCheckState(Qt::Checked);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         tw_ctlin->setItem(row, col++, item);
+
+        item = new QTableWidgetItem;
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        tw_ctlin->setItem(row, col++, item);
+        {
+            QWidget *w = new QWidget;
+            tw_ctlin->setCellWidget(row, col - 1, w);
+            QHBoxLayout *hl = new QHBoxLayout;
+            w->setLayout(hl);
+            hl->setContentsMargins(3, 2, 3, 2);
+
+            QCheckBox *chk = new QCheckBox;
+            hl->addWidget(chk);
+
+            QSpinBox *val = new QSpinBox;
+            hl->addWidget(val);
+            val->setRange(1, f.controls.size());
+            val->setSizePolicy(
+                QSizePolicy::MinimumExpanding, val->sizePolicy().verticalPolicy());
+
+            item->setData(Qt::UserRole, (qulonglong)(uintptr_t)chk);
+            item->setData(Qt::UserRole + 1, (qulonglong)(uintptr_t)val);
+        }
 
         ++row;
     }
@@ -269,6 +295,11 @@ PdData MainWindow::Impl::getPdData() const
                 break;
             }
         }
+
+        QTableWidgetItem *item4 = tw_ctlin->item(i, 4);
+        QCheckBox *chk_initarg = (QCheckBox *)(uintptr_t)item4->data(Qt::UserRole).toULongLong();
+        QSpinBox *val_initarg = (QSpinBox *)(uintptr_t)item4->data(Qt::UserRole + 1).toULongLong();
+        ctl.initarg = chk_initarg->isChecked() ? (val_initarg->value() - 1) : -1;
 
         p.controls.push_back(ctl);
     }

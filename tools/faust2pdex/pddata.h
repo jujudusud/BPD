@@ -12,6 +12,7 @@ struct PdData {
         QString symbol;
         bool hasinlet = false;
         bool haslimit = false;
+        int initarg = -1;
         unsigned faustindex = 0;
     };
     QVector<Control> controls;

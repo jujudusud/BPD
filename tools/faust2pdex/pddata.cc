@@ -46,6 +46,7 @@ QString PdData::generateExternal() const
            << ", " << toCString(fctl.label)
            << ", " << (ctl.hasinlet ? "true" : "false")
            << ", " << (ctl.haslimit ? "true" : "false")
+           << ", " << ctl.initarg
            << ", " << fctl.min << ", " << fctl.max
            << ")";
     }

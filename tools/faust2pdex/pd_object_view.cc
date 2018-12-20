@@ -21,6 +21,10 @@ PdObjectView::PdObjectView(QWidget *parent)
 {
     setBackgroundRole(QPalette::Window);
 
+    QFont font("Monospace");
+    font.setStyleHint(QFont::TypeWriter);
+    P->font_ = font;
+
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 

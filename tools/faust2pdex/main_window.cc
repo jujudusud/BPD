@@ -184,7 +184,7 @@ void MainWindow::on_btn_generate_clicked()
     QString code = p.generateExternal();
 
     QDialog *dlg = new QDialog(this);
-    dlg->resize(800, 800);
+    dlg->resize(1000, 800);
 
     QVBoxLayout *vl = new QVBoxLayout;
     dlg->setLayout(vl);
@@ -204,6 +204,10 @@ void MainWindow::on_btn_generate_clicked()
     txt_code->setReadOnly(false);
     txt_code->setLineWrapMode(QTextEdit::NoWrap);
     txt_code->setText(code);
+
+    QFont font("Monospace");
+    font.setStyleHint(QFont::TypeWriter);
+    txt_code->setFont(font);
 
     connect(
         btn_save, &QToolButton::clicked, dlg,

@@ -239,7 +239,8 @@ void DSP_SETUP()
         cls, (t_method)&dsp_object_dsp, gensym("dsp"), A_CANT, A_NULL);
 
 #define DSP_IMPL_ADD_METHOD(symbol, ident, label, hasinlet, haslimit, initarg, min, max) \
-    class_addmethod(dsp_object_class, (t_method)dsp_object_ctl_##ident, gensym(symbol), A_FLOAT, 0);
+    class_addmethod(                                                    \
+        dsp_object_class, (t_method)dsp_object_ctl_##ident, gensym(symbol), A_FLOAT, 0);
     DSP_CONTROLS(DSP_IMPL_ADD_METHOD);
 #undef DSP_IMPL_ADD_METHOD
 }

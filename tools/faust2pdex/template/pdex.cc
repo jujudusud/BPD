@@ -1,5 +1,4 @@
 #include <m_pd.h>
-#include <vector>
 #include <algorithm>
 #include <cstring>
 #include <cassert>

@@ -108,8 +108,8 @@ static void *dsp_object_new(t_symbol *, int argc, t_atom argv[])
     x->x_signalin = 0;
 #endif
 
-#if DSP_NUM_INPUTS > 0
-    for (unsigned i = DSP_MAINSIGNALIN ? 1 : 0; i < DSP_NUM_INPUTS; ++i)
+#if DSP_NUM_INPUTS > 1
+    for (unsigned i = 1; i < DSP_NUM_INPUTS; ++i)
         inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
 #endif
 
@@ -224,7 +224,7 @@ void DSP_SETUP()
         (t_newmethod)(void (*)())&dsp_object_new,
         (t_method)&dsp_object_free,
         sizeof(t_dsp_object),
-#if DSP_MAINSIGNALIN
+#if DSP_NUM_INPUTS > 0
         CLASS_DEFAULT,
 #else
         CLASS_NOINLET,

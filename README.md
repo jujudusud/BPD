@@ -4,7 +4,7 @@ Bass Preamp Drive
 En français :fr: 
 ## Le projet :
 Le but de ce projet est de reproduire sous forme numérique le comportement d'un préampli de basse électrique bien connu : Ampeg SVT3 Pro.
-Ce préampli a été copié par plusieurs fabricants. On a donc une copie presque parfaite avec le Bugera BVP5500 qui comporte quatre lampes de préamplification. Un copie analogique existe aussi sous forme de pédale, le Tech 21 BDDI.
+Ce préampli a été copié par plusieurs fabricants. On a donc une copie presque parfaite avec le Bugera BVP5500 qui comporte quatre lampes de préamplification. Une copie analogique existe aussi sous forme de pédale, le Tech 21 BDDI.
 ## Les outils :
 Le projet s'appuie sur des avancées dans la simulation de circuits analogiques mises à disposition par le projet [Guitarix](https://guitarix.org) et l'excellent [Faust](https://faust.grame.fr) du Grame cncm.
 

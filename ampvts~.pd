@@ -1,0 +1,114 @@
+#N canvas 745 132 571 598 10;
+#X msg 37 418 info;
+#X obj 76 486 print Saturate;
+#X obj 180 545 dac~;
+#X obj 18 8 hradio 10 1 0 3 empty empty empty 0 -8 0 10 -262144 -1
+-1 2;
+#X obj 216 34 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 6475 1;
+#X msg 67 55 control gain \$1;
+#X floatatom 213 56 5 0 0 0 - - -;
+#X floatatom 249 92 5 0 0 0 - - -;
+#X obj 269 460 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 254 490 sgvisu~ spectre;
+#X obj 284 511 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 269 541 ogvisu~ oscillo;
+#X obj 252 75 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 9525 1;
+#X obj 237 421 adc~;
+#X obj 101 443 plugin~ AmpVTS;
+#X msg 18 23 control over \$1;
+#X msg 213 10 0.25;
+#X msg 101 86 control bright \$1;
+#X msg 249 56 0.75;
+#X floatatom 250 178 5 0 0 0 - - -;
+#X obj 253 161 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 7975 1;
+#X floatatom 291 218 5 0 0 0 - - -;
+#X obj 294 199 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 3525 1;
+#X msg 291 180 0.75;
+#X floatatom 260 254 5 0 0 0 - - -;
+#X obj 263 237 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 5200 1;
+#X floatatom 291 130 5 0 0 0 - - -;
+#X obj 294 113 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 6350 1;
+#X msg 122 120 control power \$1;
+#X msg 291 94 0.5;
+#X msg 139 188 control bass \$1;
+#X msg 139 219 control mid \$1;
+#X msg 135 254 control treble \$1;
+#X msg 139 314 control attack \$1;
+#X msg 144 346 control lowcut \$1;
+#X msg 134 282 control squash \$1;
+#X msg 250 142 0.25;
+#X msg 260 218 1;
+#X floatatom 306 293 5 0 0 0 - - -;
+#X obj 309 276 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 3175 1;
+#X floatatom 268 329 5 0 0 0 - - -;
+#X obj 271 312 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 9525 1;
+#X floatatom 314 370 5 0 0 0 - - -;
+#X obj 317 353 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 9525 1;
+#X msg 314 334 0.75;
+#X msg 268 293 0.75;
+#X msg 306 257 0.25;
+#X obj 368 11 hradio 10 1 0 9 empty empty empty 0 -8 0 10 -262144 -1
+-1 0;
+#X msg 368 26 control tonestack \$1;
+#X connect 0 0 14 0;
+#X connect 3 0 15 0;
+#X connect 4 0 5 0;
+#X connect 4 0 6 0;
+#X connect 5 0 14 0;
+#X connect 7 0 17 0;
+#X connect 8 0 9 0;
+#X connect 10 0 11 0;
+#X connect 12 0 7 0;
+#X connect 13 0 9 1;
+#X connect 13 0 11 1;
+#X connect 13 0 14 1;
+#X connect 14 0 1 0;
+#X connect 14 1 2 0;
+#X connect 14 1 2 1;
+#X connect 14 1 9 0;
+#X connect 14 1 11 0;
+#X connect 15 0 14 0;
+#X connect 16 0 4 0;
+#X connect 17 0 14 0;
+#X connect 18 0 12 0;
+#X connect 19 0 30 0;
+#X connect 20 0 19 0;
+#X connect 21 0 31 0;
+#X connect 22 0 21 0;
+#X connect 23 0 22 0;
+#X connect 24 0 32 0;
+#X connect 25 0 24 0;
+#X connect 26 0 28 0;
+#X connect 27 0 26 0;
+#X connect 28 0 14 0;
+#X connect 29 0 27 0;
+#X connect 30 0 14 0;
+#X connect 31 0 14 0;
+#X connect 32 0 14 0;
+#X connect 33 0 14 0;
+#X connect 34 0 14 0;
+#X connect 35 0 14 0;
+#X connect 36 0 20 0;
+#X connect 37 0 25 0;
+#X connect 38 0 35 0;
+#X connect 39 0 38 0;
+#X connect 40 0 33 0;
+#X connect 41 0 40 0;
+#X connect 42 0 34 0;
+#X connect 43 0 42 0;
+#X connect 44 0 43 0;
+#X connect 45 0 41 0;
+#X connect 46 0 39 0;
+#X connect 47 0 48 0;
+#X connect 48 0 14 0;

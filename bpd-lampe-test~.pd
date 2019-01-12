@@ -1,6 +1,6 @@
-#N canvas 628 129 410 371 10;
+#N canvas 514 129 410 371 10;
 #X declare -lib iemlib;
-#N canvas 111 405 531 389 subpatch 0;
+#N canvas 138 375 531 389 subpatch 0;
 #X obj 16 261 bpd-lampe~;
 #X obj 172 261 bpd-lampe~;
 #X obj 17 134 *~;

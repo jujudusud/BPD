@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 // !! set the relative location of faust code output !!
-#define DSP_CC_FILENAME "./dsp/alembic.cc"
+#define DSP_CC_FILENAME "./alembic/alembic.cc"
 
 //------------------------------------------------------------------------------
 // Static definitions from generator

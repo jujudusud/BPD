@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 // !! set the relative location of faust code output !!
-#define DSP_CC_FILENAME "./dsp/preamp.cc"
+#define DSP_CC_FILENAME "./preamp/preamp.cc"
 
 //------------------------------------------------------------------------------
 // Static definitions from generator

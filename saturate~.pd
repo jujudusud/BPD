@@ -1,4 +1,4 @@
-#N canvas 859 132 450 598 10;
+#N canvas 826 131 450 598 10;
 #X msg 65 176 info;
 #X obj 129 201 plugin~ Saturate;
 #X obj 104 244 print Saturate;
@@ -7,7 +7,7 @@
 #X obj 18 91 hradio 15 1 0 12 empty empty empty 0 -8 0 10 -262144 -1
 -1 10;
 #X obj 216 89 hsl 128 15 -24 72 0 1 empty empty empty -2 -8 0 10 -262144
--1 -1 3175 1;
+-1 -1 4575 1;
 #X msg 125 127 control gain \$1;
 #X floatatom 213 111 5 0 0 0 - - -;
 #X floatatom 266 144 5 0 0 0 - - -;
@@ -21,11 +21,11 @@
 -1 -1;
 #X obj 292 366 ogvisu~ oscillo;
 #X obj 291 306 wfvisu~ water;
-#X obj 265 179 osc~ 100;
 #X msg 213 65 0;
 #X obj 269 127 hsl 128 15 0 1 0 1 empty empty empty -2 -8 0 10 -262144
--1 -1 0 1;
+-1 -1 12700 1;
 #X msg 266 108 0.1;
+#X obj 265 179 adc~;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
 #X connect 1 1 4 0;
@@ -43,10 +43,10 @@
 #X connect 11 0 12 0;
 #X connect 13 0 16 0;
 #X connect 14 0 15 0;
-#X connect 17 0 1 1;
-#X connect 17 0 12 1;
-#X connect 17 0 16 1;
-#X connect 17 0 15 1;
-#X connect 18 0 6 0;
-#X connect 19 0 9 0;
-#X connect 20 0 19 0;
+#X connect 17 0 6 0;
+#X connect 18 0 9 0;
+#X connect 19 0 18 0;
+#X connect 20 0 1 1;
+#X connect 20 0 12 1;
+#X connect 20 0 16 1;
+#X connect 20 0 15 1;

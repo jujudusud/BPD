@@ -1,4 +1,8 @@
+*~
 *.o
+*.so
 *.dll
+*.dylib
 *.pd_linux
 *.pd_darwin
+trash/
